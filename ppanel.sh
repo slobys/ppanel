@@ -201,7 +201,7 @@ services:
     ports:
       - '3000:3000'
     environment:
-      NEXT_PUBLIC_DEFAULT_LANGUAGE: en-US
+      NEXT_PUBLIC_DEFAULT_LANGUAGE: zh-CN
       NEXT_PUBLIC_SITE_URL: https://$ADMIN_DOMAIN
       NEXT_PUBLIC_API_URL: https://$API_DOMAIN
       NEXT_PUBLIC_DEFAULT_USER_EMAIL: user@$USER_DOMAIN
@@ -212,7 +212,7 @@ services:
     ports:
       - '3001:3000'
     environment:
-      NEXT_PUBLIC_DEFAULT_LANGUAGE: en-US
+      NEXT_PUBLIC_DEFAULT_LANGUAGE: zh-CN
       NEXT_PUBLIC_SITE_URL: https://$USER_DOMAIN
       NEXT_PUBLIC_API_URL: https://$API_DOMAIN
       NEXT_PUBLIC_EMAIL: contact@$USER_DOMAIN
