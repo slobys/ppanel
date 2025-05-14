@@ -217,13 +217,13 @@ networks:
 EOF
 
 # ============ 10. 修改 config/ppanel.yaml 数据库用户名密码 ============
-echo "🔧 更新 ppanel.yaml 中的数据库用户名与密码 ..."
-if [ -f /opt/ppanel/ppanel-script/config/ppanel.yaml ]; then
-  sed -i "s/^\\s*Username:.*/  Username: user/" /opt/ppanel/ppanel-script/config/ppanel.yaml
-  sed -i "s/^\\s*Password:.*/  Password: aws123456/" /opt/ppanel/ppanel-script/config/ppanel.yaml
-else
-  echo "⚠️ 未找到 /opt/ppanel/ppanel-script/config/ppanel.yaml，跳过修改"
-fi
+# echo "🔧 更新 ppanel.yaml 中的数据库用户名与密码 ..."
+# if [ -f /opt/ppanel/ppanel-script/config/ppanel.yaml ]; then
+#   sed -i "s/^\\s*Username:.*/  Username: user/" /opt/ppanel/ppanel-script/config/ppanel.yaml
+#   sed -i "s/^\\s*Password:.*/  Password: aws123456/" /opt/ppanel/ppanel-script/config/ppanel.yaml
+# else
+#   echo "⚠️ 未找到 /opt/ppanel/ppanel-script/config/ppanel.yaml，跳过修改"
+# fi
 
 # ============ 11. 启动服务 ============
 docker compose up -d
