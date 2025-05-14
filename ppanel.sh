@@ -145,7 +145,7 @@ cp /opt/ppanel/ppanel-script/docker-compose.yml{,.bak} || true
 cat > /opt/ppanel/ppanel-script/docker-compose.yml <<EOF
 services:
   ppanel-server:
-    image: ppanel/ppanel-server:latest
+    image: ppanel/ppanel-server:beta
     container_name: ppanel-server-beta
     ports:
       - '8080:8080'
@@ -174,7 +174,7 @@ services:
       - ./docker/mysql:/var/lib/mysql
     command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpassword"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot","-prootpassword"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -204,8 +204,7 @@ services:
       NEXT_PUBLIC_DEFAULT_LANGUAGE: zh-CN
       NEXT_PUBLIC_SITE_URL: https://$ADMIN_DOMAIN
       NEXT_PUBLIC_API_URL: https://$API_DOMAIN
-      NEXT_PUBLIC_DEFAULT_USER_EMAIL: user@$USER_DOMAIN
-      NEXT_PUBLIC_DEFAULT_USER_PASSWORD: password123
+
   ppanel-user-web:
     image: ppanel/ppanel-user-web:latest
     container_name: ppanel-user-web
