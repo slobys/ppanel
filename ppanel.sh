@@ -214,16 +214,7 @@ services:
       NEXT_PUBLIC_DEFAULT_LANGUAGE: zh-CN
       NEXT_PUBLIC_SITE_URL: https://$USER_DOMAIN
       NEXT_PUBLIC_API_URL: https://$API_DOMAIN
-      NEXT_PUBLIC_EMAIL: contact@$USER_DOMAIN
-      NEXT_PUBLIC_TELEGRAM_LINK: https://t.me/example
-      NEXT_PUBLIC_TWITTER_LINK: https://twitter.com/example
-      NEXT_PUBLIC_DISCORD_LINK: https://discord.com/example
-      NEXT_PUBLIC_INSTAGRAM_LINK: https://instagram.com/example
-      NEXT_PUBLIC_LINKEDIN_LINK: https://linkedin.com/example
-      NEXT_PUBLIC_FACEBOOK_LINK: https://facebook.com/example
-      NEXT_PUBLIC_GITHUB_LINK: https://github.com/example/repository
-      NEXT_PUBLIC_DEFAULT_USER_EMAIL: user@$USER_DOMAIN
-      NEXT_PUBLIC_DEFAULT_USER_PASSWORD: password123
+      
 networks:
   ppanel-network:
     driver: bridge
