@@ -232,4 +232,10 @@ fi
 # ============ 11. 启动服务 ============
 docker compose up -d
 
-echo "✅ 安装完成！请访问后台地址：https://$ADMIN_DOMAIN"
+# ...安装与启动容器的代码...
+
+# 最后加上提示语
+echo ""
+echo "✅ 安装完成！"
+echo "🔧 后台管理地址：https://$ADMIN_DOMAIN"
+echo "🛠️  初始化页面地址：https://$API_DOMAIN"
