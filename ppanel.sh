@@ -166,8 +166,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: aws123456
       MYSQL_DATABASE: my_database
-      MYSQL_USER: user
-      MYSQL_PASSWORD: rootpassword
+      MYSQL_USER: root
+      MYSQL_PASSWORD: aws123456
     ports:
       - "3306:3306"
     volumes:
