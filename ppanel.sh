@@ -167,7 +167,7 @@ services:
       MYSQL_ROOT_PASSWORD: aws123456
       MYSQL_DATABASE: my_database
       MYSQL_USER: user
-      MYSQL_PASSWORD: aws123456
+      MYSQL_PASSWORD: rootpassword
     ports:
       - "3306:3306"
     volumes:
@@ -241,9 +241,9 @@ echo ""
 echo "🛢 MySQL 配置"
 echo "数据库主机: mysql_db"
 echo "数据库端口: 3306"
-echo "数据库用户: root"
-echo "数据库密码: rootpassword"
-echo "数据库名称: ppanel_db"
+echo "数据库用户: user"
+echo "数据库密码: aws123456"
+echo "数据库名称: my_database"
 echo ""
 echo "🔁 Redis 配置"
 echo "Redis 主机: redis_cache"
