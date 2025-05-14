@@ -164,10 +164,10 @@ services:
     container_name: mysql_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: aws123456
+      MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: my_database
-      MYSQL_USER: root
-      MYSQL_PASSWORD: aws123456
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpassword
     ports:
       - "3306:3306"
     volumes:
