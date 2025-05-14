@@ -2,9 +2,9 @@
 set -e
 
 echo "🧭 请输入三个绑定的域名："
-read -p "后台管理域名 (admin.*): " ADMIN_DOMAIN
-read -p "API 接口域名 (api.*): " API_DOMAIN
-read -p "用户前端域名 (user.*): " USER_DOMAIN
+read -p "后台管理域名 (如 admin.example.com): " ADMIN_DOMAIN
+read -p "API 接口域名 (如 api.example.com): " API_DOMAIN
+read -p "用户前端域名 (如 user.example.com): " USER_DOMAIN
 
 # ============ 1. 系统准备 ============
 echo "🛠️ 正在更新系统并安装依赖..."
@@ -24,8 +24,8 @@ echo "🔐 安装 acme.sh..."
 curl https://get.acme.sh | sh -s
 export PATH="$HOME/.acme.sh:$PATH"
 
-# ============ 4. 写入 Nginx 临时验证配置 ============
-echo "📝 配置 Nginx 验证..."
+# ============ 4. 写入临时 Nginx 验证配置 ============
+echo "📝 配置 Nginx 验证路径..."
 mkdir -p /etc/nginx/conf.d/
 cat > /etc/nginx/conf.d/ppanel.conf <<EOF
 server {
@@ -42,7 +42,7 @@ EOF
 nginx -t && nginx -s reload
 
 # ============ 5. 申请证书 ============
-echo "📜 申请 SSL 证书..."
+echo "📜 正在申请 SSL 证书..."
 mkdir -p /opt/ppanel/.well-known/acme-challenge
 mkdir -p /opt/ppanel/certs
 
@@ -56,7 +56,7 @@ mkdir -p /opt/ppanel/certs
   --reloadcmd      "systemctl reload nginx"
 
 # ============ 6. 设置自动续期 ============
-echo "⏰ 设置自动续期任务..."
+echo "⏰ 配置自动续期任务..."
 echo "10 1 * * * root ~/.acme.sh/acme.sh --renew -d $ADMIN_DOMAIN -d $API_DOMAIN -d $USER_DOMAIN --force &> /dev/null" > /etc/cron.d/ppanel_domain
 chmod +x /etc/cron.d/ppanel_domain
 
@@ -133,13 +133,13 @@ EOF
 
 nginx -t && nginx -s reload
 
-# ============ 8. 部署 PPanel 容器 ============
-echo "🐳 拉取并部署 PPanel Docker 服务..."
+# ============ 8. 部署 PPanel Docker 服务 ============
+echo "🐳 启动 PPanel 服务..."
 cd /opt/ppanel
 git clone https://github.com/perfect-panel/ppanel-script.git || true
 cd ppanel-script
+
 # ============ 9. 写入自定义 docker-compose.yml ============
-echo "📝 覆盖 docker-compose.yml ..."
 echo "📝 备份并覆盖 docker-compose.yml ..."
 cp /opt/ppanel/ppanel-script/docker-compose.yml{,.bak} || true
 cat > /opt/ppanel/ppanel-script/docker-compose.yml <<EOF
@@ -201,7 +201,7 @@ services:
     ports:
       - '3000:3000'
     environment:
-      NEXT_PUBLIC_DEFAULT_LANGUAGE: zh-CN
+      NEXT_PUBLIC_DEFAULT_LANGUAGE: en-US
       NEXT_PUBLIC_SITE_URL: https://$ADMIN_DOMAIN
       NEXT_PUBLIC_API_URL: http://ppanel-server:8080
       NEXT_PUBLIC_DEFAULT_USER_EMAIL: user@$USER_DOMAIN
@@ -212,7 +212,7 @@ services:
     ports:
       - '3001:3000'
     environment:
-      NEXT_PUBLIC_DEFAULT_LANGUAGE: zh-CN
+      NEXT_PUBLIC_DEFAULT_LANGUAGE: en-US
       NEXT_PUBLIC_SITE_URL: https://$USER_DOMAIN
       NEXT_PUBLIC_API_URL: http://ppanel-server:8080
       NEXT_PUBLIC_EMAIL: contact@$USER_DOMAIN
@@ -230,6 +230,16 @@ networks:
     driver: bridge
 EOF
 
+# ============ 10. 修改 config/ppanel.yaml 数据库用户名密码 ============
+echo "🔧 更新 ppanel.yaml 中的数据库用户名与密码 ..."
+if [ -f /opt/ppanel/ppanel-script/config/ppanel.yaml ]; then
+  sed -i "s/^\\s*Username:.*/  Username: user/" /opt/ppanel/ppanel-script/config/ppanel.yaml
+  sed -i "s/^\\s*Password:.*/  Password: aws123456/" /opt/ppanel/ppanel-script/config/ppanel.yaml
+else
+  echo "⚠️ 未找到 /opt/ppanel/ppanel-script/config/ppanel.yaml，跳过修改"
+fi
+
+# ============ 11. 启动服务 ============
 docker compose up -d
 
-echo "✅ 安装完成！请访问：https://$ADMIN_DOMAIN"
+echo "✅ 安装完成！请访问后台地址：https://$ADMIN_DOMAIN"
