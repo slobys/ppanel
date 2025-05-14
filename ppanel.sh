@@ -145,7 +145,7 @@ cp /opt/ppanel/ppanel-script/docker-compose.yml{,.bak} || true
 cat > /opt/ppanel/ppanel-script/docker-compose.yml <<EOF
 services:
   ppanel-server:
-    image: ppanel/ppanel-server:beta
+    image: ppanel/ppanel-server:latest
     container_name: ppanel-server-beta
     ports:
       - '8080:8080'
@@ -196,7 +196,7 @@ services:
     networks:
       - ppanel-network
   ppanel-admin-web:
-    image: ppanel/ppanel-admin-web:beta
+    image: ppanel/ppanel-admin-web:latest
     container_name: ppanel-admin-web
     ports:
       - '3000:3000'
@@ -207,7 +207,7 @@ services:
       NEXT_PUBLIC_DEFAULT_USER_EMAIL: user@$USER_DOMAIN
       NEXT_PUBLIC_DEFAULT_USER_PASSWORD: password123
   ppanel-user-web:
-    image: ppanel/ppanel-user-web:beta
+    image: ppanel/ppanel-user-web:latest
     container_name: ppanel-user-web
     ports:
       - '3001:3000'
