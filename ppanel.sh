@@ -17,6 +17,7 @@ echo "🐳 安装 Docker 和 Docker Compose..."
 git clone https://github.com/slobys/docker.git /tmp/docker
 chmod +x /tmp/docker/docker.sh
 /tmp/docker/docker.sh
+cd
 systemctl enable --now docker
 
 # ============ 3. 安装 acme.sh ============
@@ -24,8 +25,8 @@ echo "🔐 安装 acme.sh..."
 curl https://get.acme.sh | sh -s
 export PATH="$HOME/.acme.sh:$PATH"
 
-# ============ 4. 写入临时 Nginx 验证配置 ============
-echo "📝 配置 Nginx 验证路径..."
+# ============ 4. 写入 Nginx 临时验证配置 ============
+echo "📝 配置 Nginx 验证..."
 mkdir -p /etc/nginx/conf.d/
 cat > /etc/nginx/conf.d/ppanel.conf <<EOF
 server {
@@ -42,7 +43,7 @@ EOF
 nginx -t && nginx -s reload
 
 # ============ 5. 申请证书 ============
-echo "📜 正在申请 SSL 证书..."
+echo "📜 申请 SSL 证书..."
 mkdir -p /opt/ppanel/.well-known/acme-challenge
 mkdir -p /opt/ppanel/certs
 
@@ -56,7 +57,7 @@ mkdir -p /opt/ppanel/certs
   --reloadcmd      "systemctl reload nginx"
 
 # ============ 6. 设置自动续期 ============
-echo "⏰ 配置自动续期任务..."
+echo "⏰ 设置自动续期任务..."
 echo "10 1 * * * root ~/.acme.sh/acme.sh --renew -d $ADMIN_DOMAIN -d $API_DOMAIN -d $USER_DOMAIN --force &> /dev/null" > /etc/cron.d/ppanel_domain
 chmod +x /etc/cron.d/ppanel_domain
 
@@ -133,11 +134,104 @@ EOF
 
 nginx -t && nginx -s reload
 
-# ============ 8. 部署 PPanel Docker 服务 ============
-echo "🐳 启动 PPanel 服务..."
+# ============ 8. 部署 PPanel 容器 ============
+echo "🐳 拉取并部署 PPanel Docker 服务..."
 cd /opt/ppanel
 git clone https://github.com/perfect-panel/ppanel-script.git || true
 cd ppanel-script
+# ============ 9. 写入自定义 docker-compose.yml ============
+echo "📝 覆盖 docker-compose.yml ..."
+echo "📝 备份并覆盖 docker-compose.yml ..."
+cp /opt/ppanel/ppanel-script/docker-compose.yml{,.bak} || true
+cat > /opt/ppanel/ppanel-script/docker-compose.yml <<'EOF'
+services:
+  ppanel-server:
+    image: ppanel/ppanel-server:beta
+    container_name: ppanel-server-beta
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./config/ppanel.yaml:/opt/ppanel/ppanel-script/config/ppanel.yaml
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ppanel-network
+  mysql:
+    image: mysql:8.0.23
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: aws123456
+      MYSQL_DATABASE: my_database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: aws123456
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - ppanel-network
+  redis:
+    image: redis:7
+    container_name: redis_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - ppanel-network
+  ppanel-admin-web:
+    image: ppanel/ppanel-admin-web:beta
+    container_name: ppanel-admin-web
+    ports:
+      - '3000:3000'
+    environment:
+      NEXT_PUBLIC_DEFAULT_LANGUAGE: en-US
+      NEXT_PUBLIC_SITE_URL: https://admin.youdomain.com
+      NEXT_PUBLIC_API_URL: http://ppanel-server:8080
+      NEXT_PUBLIC_DEFAULT_USER_EMAIL: user@user.youdomain.com
+      NEXT_PUBLIC_DEFAULT_USER_PASSWORD: password123
+  ppanel-user-web:
+    image: ppanel/ppanel-user-web:beta
+    container_name: ppanel-user-web
+    ports:
+      - '3001:3000'
+    environment:
+      NEXT_PUBLIC_DEFAULT_LANGUAGE: en-US
+      NEXT_PUBLIC_SITE_URL: https://user.youdomain.com
+      NEXT_PUBLIC_API_URL: http://ppanel-server:8080
+      NEXT_PUBLIC_EMAIL: contact@user.youdomain.com
+      NEXT_PUBLIC_TELEGRAM_LINK: https://t.me/example
+      NEXT_PUBLIC_TWITTER_LINK: https://twitter.com/example
+      NEXT_PUBLIC_DISCORD_LINK: https://discord.com/example
+      NEXT_PUBLIC_INSTAGRAM_LINK: https://instagram.com/example
+      NEXT_PUBLIC_LINKEDIN_LINK: https://linkedin.com/example
+      NEXT_PUBLIC_FACEBOOK_LINK: https://facebook.com/example
+      NEXT_PUBLIC_GITHUB_LINK: https://github.com/example/repository
+      NEXT_PUBLIC_DEFAULT_USER_EMAIL: user@user.youdomain.com
+      NEXT_PUBLIC_DEFAULT_USER_PASSWORD: password123
+networks:
+  ppanel-network:
+    driver: bridge
+
+EOF
+
 docker compose up -d
 
-echo "✅ 安装完成！请访问后台地址：https://$ADMIN_DOMAIN"
+echo "✅ 安装完成！请访问：https://$ADMIN_DOMAIN"
