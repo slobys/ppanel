@@ -17,7 +17,6 @@ echo "🐳 安装 Docker 和 Docker Compose..."
 git clone https://github.com/slobys/docker.git /tmp/docker
 chmod +x /tmp/docker/docker.sh
 /tmp/docker/docker.sh
-cd
 systemctl enable --now docker
 
 # ============ 3. 安装 acme.sh ============
@@ -143,7 +142,7 @@ cd ppanel-script
 echo "📝 覆盖 docker-compose.yml ..."
 echo "📝 备份并覆盖 docker-compose.yml ..."
 cp /opt/ppanel/ppanel-script/docker-compose.yml{,.bak} || true
-cat > /opt/ppanel/ppanel-script/docker-compose.yml <<'EOF'
+cat > /opt/ppanel/ppanel-script/docker-compose.yml <<EOF
 services:
   ppanel-server:
     image: ppanel/ppanel-server:beta
@@ -175,7 +174,7 @@ services:
       - ./docker/mysql:/var/lib/mysql
     command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpassword"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -203,9 +202,9 @@ services:
       - '3000:3000'
     environment:
       NEXT_PUBLIC_DEFAULT_LANGUAGE: en-US
-      NEXT_PUBLIC_SITE_URL: https://admin.youdomain.com
+      NEXT_PUBLIC_SITE_URL: https://$ADMIN_DOMAIN
       NEXT_PUBLIC_API_URL: http://ppanel-server:8080
-      NEXT_PUBLIC_DEFAULT_USER_EMAIL: user@user.youdomain.com
+      NEXT_PUBLIC_DEFAULT_USER_EMAIL: user@$USER_DOMAIN
       NEXT_PUBLIC_DEFAULT_USER_PASSWORD: password123
   ppanel-user-web:
     image: ppanel/ppanel-user-web:beta
@@ -214,9 +213,9 @@ services:
       - '3001:3000'
     environment:
       NEXT_PUBLIC_DEFAULT_LANGUAGE: en-US
-      NEXT_PUBLIC_SITE_URL: https://user.youdomain.com
+      NEXT_PUBLIC_SITE_URL: https://$USER_DOMAIN
       NEXT_PUBLIC_API_URL: http://ppanel-server:8080
-      NEXT_PUBLIC_EMAIL: contact@user.youdomain.com
+      NEXT_PUBLIC_EMAIL: contact@$USER_DOMAIN
       NEXT_PUBLIC_TELEGRAM_LINK: https://t.me/example
       NEXT_PUBLIC_TWITTER_LINK: https://twitter.com/example
       NEXT_PUBLIC_DISCORD_LINK: https://discord.com/example
@@ -224,12 +223,11 @@ services:
       NEXT_PUBLIC_LINKEDIN_LINK: https://linkedin.com/example
       NEXT_PUBLIC_FACEBOOK_LINK: https://facebook.com/example
       NEXT_PUBLIC_GITHUB_LINK: https://github.com/example/repository
-      NEXT_PUBLIC_DEFAULT_USER_EMAIL: user@user.youdomain.com
+      NEXT_PUBLIC_DEFAULT_USER_EMAIL: user@$USER_DOMAIN
       NEXT_PUBLIC_DEFAULT_USER_PASSWORD: password123
 networks:
   ppanel-network:
     driver: bridge
-
 EOF
 
 docker compose up -d
