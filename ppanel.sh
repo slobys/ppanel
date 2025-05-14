@@ -203,7 +203,7 @@ services:
     environment:
       NEXT_PUBLIC_DEFAULT_LANGUAGE: en-US
       NEXT_PUBLIC_SITE_URL: https://$ADMIN_DOMAIN
-      NEXT_PUBLIC_API_URL: http://ppanel-server:8080
+      NEXT_PUBLIC_API_URL: https://$API_DOMAIN
       NEXT_PUBLIC_DEFAULT_USER_EMAIL: user@$USER_DOMAIN
       NEXT_PUBLIC_DEFAULT_USER_PASSWORD: password123
   ppanel-user-web:
@@ -214,7 +214,7 @@ services:
     environment:
       NEXT_PUBLIC_DEFAULT_LANGUAGE: en-US
       NEXT_PUBLIC_SITE_URL: https://$USER_DOMAIN
-      NEXT_PUBLIC_API_URL: http://ppanel-server:8080
+      NEXT_PUBLIC_API_URL: https://$API_DOMAIN
       NEXT_PUBLIC_EMAIL: contact@$USER_DOMAIN
       NEXT_PUBLIC_TELEGRAM_LINK: https://t.me/example
       NEXT_PUBLIC_TWITTER_LINK: https://twitter.com/example
